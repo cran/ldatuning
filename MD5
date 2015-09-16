@@ -1,0 +1,17 @@
+83dcbdda35a8acd9ea14a79e4d53f557 *DESCRIPTION
+f2c58d418f0ab9052b55402b4ea844af *LICENSE
+bf21360729b38b8edb27284abf9c55dc *NAMESPACE
+dc0b8b1d666530c3ba1227c91186392a *R/ldatuning.R
+5590a2862819c81ab134fb52d52dde63 *R/main.R
+b53d58b584c711b1f276f511a2a4849e *build/vignette.rds
+3562ab16a7553723c51d1adb2aaccb00 *inst/doc/topics.R
+65db5c57ce3a1669a57c997396e0c02c *inst/doc/topics.Rmd
+a3cb3a7b58876171c7903ca284854a3a *inst/doc/topics.html
+522d3e0aebb07bd33b90654aaa95f6d5 *man/Deveaud2014.Rd
+b331055ba62b12687c7e054bd7f12fc8 *man/FindTopicsNumber.Rd
+cf6418eef5daf3792786622d7d8293f2 *man/FindTopicsNumber_plot.Rd
+4e3b125f7fa6456a02f6c0506ffd2235 *man/ldatuning.Rd
+fd38585889a0db858d2b05fe10d44ad7 *vignettes/acm-sigchi-proceedings.csl
+60b2f44d4eb42e8198899b66f80e5cdf *vignettes/files/APress.csv
+deff60b1b10e8ebb9b817c3a2120f341 *vignettes/references.bib
+badec01bdb106ad675b7fcef1a6b723b *vignettes/topics.Rmd
