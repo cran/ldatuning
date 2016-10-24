@@ -4,6 +4,10 @@
 # knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ---- eval=FALSE---------------------------------------------------------
+#  install.packages("ldatuning")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  install.packages("devtools")
 #  devtools::install_github("nikita-moor/ldatuning")
 
 ## ---- message=FALSE------------------------------------------------------

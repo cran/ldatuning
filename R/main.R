@@ -4,8 +4,8 @@
 # 1. add conversion: TermDocumentMatrix > DocumentTermMatrix
 #    if (is(dtm, "TermDocumentMatrix")) dtm <- t(dtm)
 # 2. CaoJuan2009: check with lsa::cosine - http://stackoverflow.com/questions/2535234/find-cosine-similarity-in-r
-# 4. Replace `mclapply` with cross-platform analog, see details
-#    http://stackoverflow.com/questions/18588896/custom-package-using-parallel-or-doparallel-for-multiple-os-as-a-cran-package
+# 5. parallel::detectCores()
+# 6. desc-sorted topics list for optimal parallelization
 
 
 #' FindTopicsNumber
@@ -23,19 +23,22 @@
 #' @param control A named list of the control parameters for estimation or an
 #'   object of class "\linkS4class{LDAcontrol}".
 #' @param mc.cores Integer; The number of CPU cores to processes models
-#'   simultaneously (using \code{mclapply}).
+#'   simultaneously.
 #' @param verbose If false (default), supress all warnings and additional
 #'   information.
 #'
 #' @return Data-frame with one or more metrics.  numbers of topics and
-#'   corresponding values of metric (higher is better). Can be directly used by
+#'   corresponding values of metric. Can be directly used by
 #'   \code{\link{FindTopicsNumber_plot}} to draw a plot.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' library(topicmodels)
 #' data("AssociatedPress", package="topicmodels")
 #' dtm <- AssociatedPress[1:10, ]
 #' FindTopicsNumber(dtm, topics = 2:10, metrics = "Arun2010", mc.cores = 1L)
+#' }
 #'
 #' @export
 FindTopicsNumber <- function(dtm, topics = seq(10, 40, by = 10),
@@ -60,9 +63,14 @@ FindTopicsNumber <- function(dtm, topics = seq(10, 40, by = 10),
 
   # fit models
   if (verbose) cat("fit models...")
-  models <- parallel::mclapply(topics, mc.cores = mc.cores, FUN = function(x) {
+  cl <- parallel::makeCluster(mc.cores)
+  parallel::setDefaultCluster(cl)
+  parallel::clusterExport(varlist = c("dtm", "method", "control"),
+                          envir = environment())
+  models <- parallel::parLapply(X = topics, fun = function(x) {
     topicmodels::LDA(dtm, k = x, method = method, control = control)
   })
+  parallel::stopCluster(cl)
   if (verbose) cat(" done.\n")
 
   # calculate metrics
@@ -70,11 +78,6 @@ FindTopicsNumber <- function(dtm, topics = seq(10, 40, by = 10),
   result <- data.frame(topics)
   for(m in metrics) {
     if (verbose) cat(sprintf("  %s...", m))
-    # does not work inside of package
-    # f <- tryCatch(
-    #   match.fun(m, descend = FALSE), # ldatuning::
-    #   error = function(e) { cat(" unknown!") }
-    # )
     if (! m %in% c("Griffiths2004", "CaoJuan2009", "Arun2010", "Deveaud2014")) {
       cat(" unknown!\n")
     } else {
@@ -100,14 +103,14 @@ Griffiths2004 <- function(models, control) {
     utils::tail(model@logLiks, n = length(model@logLiks) - burnin/control$keep)
     # model@logLiks[-(1 : (control$burnin/control$keep))]
   })
-  # harmonic means
+  # harmonic means for every model
   metrics <- sapply(logLiks, function(x) {
-    # code is a little tricky, see explanation in Ponweiser2012
+    # code is a little tricky, see explanation in [Ponweiser2012 p. 36]
     # ToDo: add variant without "Rmpfr"
     llMed <- stats::median(x)
-    metric <- as.double( llMed - log( Rmpfr::mean( exp(
-      -Rmpfr::mpfr(x, prec=2000L) + llMed
-    ))))
+    metric <- as.double(
+      llMed - log( Rmpfr::mean( exp( -Rmpfr::mpfr(x, prec=2000L) + llMed )))
+    )
     return(metric)
   })
   return(metrics)
@@ -137,7 +140,7 @@ CaoJuan2009 <- function(models) {
 #' @keywords internal
 Arun2010 <- function(models, dtm) {
   # length of documents (count of words)
-  len <- slam::row_sums(dtm, dim=1)
+  len <- slam::row_sums(dtm)
   # evaluate metrics
   metrics <- sapply(models, FUN = function(model) {
     # matrix M1 topic-word
@@ -147,7 +150,7 @@ Arun2010 <- function(models, dtm) {
     # matrix M2 document-topic
     m2   <- model@gamma   # rowSums(m2) == 1
     cm2  <- len %*% m2    # crossprod(len, m2)
-    norm <- norm(as.matrix(len), type="F")
+    norm <- norm(as.matrix(len), type="m")
     cm2  <- as.vector(cm2 / norm)
     # symmetric Kullback-Leibler divergence
     divergence <- sum(cm1*log(cm1/cm2)) + sum(cm2*log(cm2/cm1))
@@ -208,6 +211,8 @@ Deveaud2014 <- function(models) {
 #'   are values of metrics.
 #'
 #' @examples
+#' \dontrun{
+#'
 #' library(topicmodels)
 #' data("AssociatedPress", package="topicmodels")
 #' dtm <- AssociatedPress[1:10, ]
@@ -215,6 +220,7 @@ Deveaud2014 <- function(models) {
 #'   metrics = c("Arun2010", "CaoJuan2009", "Griffiths2004")
 #' )
 #' FindTopicsNumber_plot(optimal.topics)
+#' }
 #'
 #' @export
 #' @import ggplot2
