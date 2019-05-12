@@ -1,10 +1,9 @@
 Package: ldatuning
 Type: Package
 Title: Tuning of the Latent Dirichlet Allocation Models Parameters
-Description: For this first version only metrics to estimate the best fitting
-    number of topics are implemented.
-Version: 0.2.0
-Date: 2016-10-24
+Description: Estimates the best fitting number of topics.
+Version: 1.0.0
+Date: 2019-05-12
 Authors@R: person("Murzintcev", "Nikita", email = "nikita@lreis.ac.cn",
                   role = c("aut", "cre"))
 URL: https://github.com/nikita-moor/ldatuning
@@ -15,10 +14,10 @@ Imports: parallel, topicmodels, slam, Rmpfr, ggplot2, reshape2, scales,
         grid
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2016-10-24 13:03:03 UTC; user
+Packaged: 2019-05-12 15:44:56 UTC; user
 Author: Murzintcev Nikita [aut, cre]
 Maintainer: Murzintcev Nikita <nikita@lreis.ac.cn>
 Repository: CRAN
-Date/Publication: 2016-10-24 17:14:24
+Date/Publication: 2019-05-12 16:10:03 UTC

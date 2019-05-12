@@ -1,11 +1,9 @@
-# Copyright (c) 2015  Nikita Murzintcev
+# Copyright (c) 2017-2019  Nikita Murzintcev
 
 # ToDo:
 # 1. add conversion: TermDocumentMatrix > DocumentTermMatrix
 #    if (is(dtm, "TermDocumentMatrix")) dtm <- t(dtm)
 # 2. CaoJuan2009: check with lsa::cosine - http://stackoverflow.com/questions/2535234/find-cosine-similarity-in-r
-# 5. parallel::detectCores()
-# 6. desc-sorted topics list for optimal parallelization
 
 
 #' FindTopicsNumber
@@ -16,16 +14,22 @@
 #' @param dtm An object of class "\link[tm]{DocumentTermMatrix}" with
 #'   term-frequency weighting or an object coercible to a
 #'   "\link[slam]{simple_triplet_matrix}" with integer entries.
-#' @param topics Vvector with number of topics to compare different models.
+#' @param topics Vector with number of topics to compare different models.
 #' @param metrics String or vector of possible metrics: "Griffiths2004",
 #'   "CaoJuan2009", "Arun2010", "Deveaud2014".
 #' @param method The method to be used for fitting; see \link[topicmodels]{LDA}.
 #' @param control A named list of the control parameters for estimation or an
 #'   object of class "\linkS4class{LDAcontrol}".
-#' @param mc.cores Integer; The number of CPU cores to processes models
-#'   simultaneously.
+#' @param mc.cores NA, integer or, cluster; the number of CPU cores to process models
+#'   simultaneously. If an integer, create a cluster on the local machine. If a
+#'   cluster, use but don't destroy it (allows multiple-node clusters). Defaults to
+#'   NA, which triggers auto-detection of number of cores on the local machine.
 #' @param verbose If false (default), supress all warnings and additional
 #'   information.
+#' @param libpath Path to R packages (use only if your R installation can't find
+#'   'topicmodels' package, [issue #3](https://github.com/nikita-moor/ldatuning/issues/3).
+#'   For example: "C:/Program Files/R/R-2.15.2/library" (Windows),
+#'                "/home/user/R/x86_64-pc-linux-gnu-library/3.2" (Linux)
 #'
 #' @return Data-frame with one or more metrics.  numbers of topics and
 #'   corresponding values of metric. Can be directly used by
@@ -41,15 +45,19 @@
 #' }
 #'
 #' @export
+#' @import topicmodels
 FindTopicsNumber <- function(dtm, topics = seq(10, 40, by = 10),
                              metrics = "Griffiths2004",
                              method = "Gibbs", control = list(),
-                             mc.cores = 1L, verbose = FALSE) {
+                             mc.cores = NA, verbose = FALSE,
+                             libpath = NULL) {
   # check parameters
   if (length(topics[topics < 2]) != 0) {
     if (verbose) cat("warning: topics count can't to be less than 2, incorrect values was removed.\n")
     topics <- topics[topics >= 2]
   }
+  topics <- sort(topics, decreasing = TRUE)
+
   if ("Griffiths2004" %in% metrics) {
     if (method == "VEM") {
       # memory allocation error
@@ -63,14 +71,25 @@ FindTopicsNumber <- function(dtm, topics = seq(10, 40, by = 10),
 
   # fit models
   if (verbose) cat("fit models...")
-  cl <- parallel::makeCluster(mc.cores)
+
+  # Parallel setup
+  if (any(class(mc.cores) == "cluster")) {
+    cl <- mc.cores
+  } else if (isTRUE(class(mc.cores) == "integer")) {
+    cl <- parallel::makeCluster(mc.cores)
+  } else {
+    cl <- parallel::makeCluster(parallel::detectCores())
+  }
   parallel::setDefaultCluster(cl)
   parallel::clusterExport(varlist = c("dtm", "method", "control"),
                           envir = environment())
   models <- parallel::parLapply(X = topics, fun = function(x) {
+    if (is.null(libpath) == FALSE) { .libPaths(libpath) }
     topicmodels::LDA(dtm, k = x, method = method, control = control)
   })
-  parallel::stopCluster(cl)
+  if (! any(class(mc.cores) == "cluster")) {
+    parallel::stopCluster(cl)
+  }
   if (verbose) cat(" done.\n")
 
   # calculate metrics

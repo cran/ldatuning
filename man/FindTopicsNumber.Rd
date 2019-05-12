@@ -6,14 +6,14 @@
 \usage{
 FindTopicsNumber(dtm, topics = seq(10, 40, by = 10),
   metrics = "Griffiths2004", method = "Gibbs", control = list(),
-  mc.cores = 1L, verbose = FALSE)
+  mc.cores = NA, verbose = FALSE, libpath = NULL)
 }
 \arguments{
 \item{dtm}{An object of class "\link[tm]{DocumentTermMatrix}" with
 term-frequency weighting or an object coercible to a
 "\link[slam]{simple_triplet_matrix}" with integer entries.}
 
-\item{topics}{Vvector with number of topics to compare different models.}
+\item{topics}{Vector with number of topics to compare different models.}
 
 \item{metrics}{String or vector of possible metrics: "Griffiths2004",
 "CaoJuan2009", "Arun2010", "Deveaud2014".}
@@ -23,11 +23,18 @@ term-frequency weighting or an object coercible to a
 \item{control}{A named list of the control parameters for estimation or an
 object of class "\linkS4class{LDAcontrol}".}
 
-\item{mc.cores}{Integer; The number of CPU cores to processes models
-simultaneously.}
+\item{mc.cores}{NA, integer or, cluster; the number of CPU cores to process models
+simultaneously. If an integer, create a cluster on the local machine. If a
+cluster, use but don't destroy it (allows multiple-node clusters). Defaults to
+NA, which triggers auto-detection of number of cores on the local machine.}
 
 \item{verbose}{If false (default), supress all warnings and additional
 information.}
+
+\item{libpath}{Path to R packages (use only if your R installation can't find
+'topicmodels' package, [issue #3](https://github.com/nikita-moor/ldatuning/issues/3).
+For example: "C:/Program Files/R/R-2.15.2/library" (Windows),
+             "/home/user/R/x86_64-pc-linux-gnu-library/3.2" (Linux)}
 }
 \value{
 Data-frame with one or more metrics.  numbers of topics and
@@ -48,4 +55,3 @@ FindTopicsNumber(dtm, topics = 2:10, metrics = "Arun2010", mc.cores = 1L)
 }
 
 }
-
