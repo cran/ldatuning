@@ -1,24 +1,24 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 # library(printr)
 # knitr::opts_chunk$set(cache=TRUE)
 # knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("ldatuning")
 
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("devtools")
 #  devtools::install_github("nikita-moor/ldatuning")
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library("ldatuning")
 
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library("topicmodels")
 data("AssociatedPress", package="topicmodels")
 dtm <- AssociatedPress[1:10, ]
 
-## ---- eval=TRUE----------------------------------------------------------
+## ---- eval=TRUE---------------------------------------------------------------
 result <- FindTopicsNumber(
   dtm,
   topics = seq(from = 2, to = 15, by = 1),
@@ -29,13 +29,13 @@ result <- FindTopicsNumber(
   verbose = TRUE
 )
 
-## ---- echo=FALSE---------------------------------------------------------
+## ---- echo=FALSE--------------------------------------------------------------
 knitr::kable(result)
 
-## ---- fig.width=6, fig.height=3, results="hide"--------------------------
+## ---- fig.width=6, fig.height=3, results="hide"-------------------------------
 FindTopicsNumber_plot(result)
 
-## ---- fig.width=9, fig.height=5, echo=FALSE------------------------------
+## ---- fig.width=9, fig.height=5, echo=FALSE-----------------------------------
 result <- read.csv(file = "files/APress.csv", header = TRUE)
 FindTopicsNumber_plot(result[result$topics < 500, ])
 
