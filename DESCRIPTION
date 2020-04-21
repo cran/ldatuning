@@ -3,8 +3,8 @@ Type: Package
 Title: Tuning of the Latent Dirichlet Allocation Models Parameters
 Description: For this first version only metrics to estimate the best fitting
     number of topics are implemented.
-Version: 1.0.1
-Date: 2020-04-08
+Version: 1.0.2
+Date: 2020-04-09
 Authors@R: c(person("Murzintcev", "Nikita", email = "nikita@lreis.ac.cn",
                   role = c("aut")),
                   person("Nathan", "Chaney", role = c("ctb", "cre"), 
@@ -20,9 +20,9 @@ Suggests: knitr, rmarkdown, tibble
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0
 NeedsCompilation: no
-Packaged: 2020-04-08 17:26:05 UTC; nathan
+Packaged: 2020-04-20 23:59:42 UTC; nathan
 Author: Murzintcev Nikita [aut],
   Nathan Chaney [ctb, cre] (<https://orcid.org/0000-0001-8985-2514>)
 Maintainer: Nathan Chaney <nathan@nathanchaney.com>
 Repository: CRAN
-Date/Publication: 2020-04-09 04:50:07 UTC
+Date/Publication: 2020-04-21 05:20:03 UTC
